@@ -29,8 +29,8 @@ if (!apolloKey) {
 
   gatewayOptions = {
     serviceList: [
-      { name: "accounts", url: "http://localhost:4001" },
-      { name: "groups", url: "http://localhost:4002" },
+      { name: "exchange", url: "http://localhost:4001" },
+      { name: "directory", url: "http://localhost:4002" },
     ],
     debug: isProd ? false : true,
     buildService({ url }) {
