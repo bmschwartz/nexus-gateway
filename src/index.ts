@@ -4,6 +4,7 @@ import { ApolloGateway, RemoteGraphQLDataSource, GatewayConfig } from "@apollo/g
 import DepthLimitingPlugin from "./plugins/ApolloServerPluginDepthLimiting";
 import StrictOperationsPlugin from "./plugins/ApolloServerPluginStrictOperations";
 import ReportForbiddenOperationsPlugin from "./plugins/ApolloServerPluginReportForbiddenOperation";
+import { createContext } from './context';
 
 dotenv.config()
 
@@ -13,7 +14,7 @@ const graphVariant = process.env.APOLLO_GRAPH_VARIANT || "development";
 
 class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }) {
-    request.http.headers.set("userid", context.userID);
+    request.http.headers.set("userid", context.userId);
   }
 }
 
@@ -69,17 +70,7 @@ const server = new ApolloServer({
       all: true
     }
   },
-  context: ({ req }) => {
-    // get the user token from the headers
-    const token = req.headers.authorization || "";
-
-    // parse JWT into scope and user identity
-    // const userID = getUserId(token);
-    const userID = "1";
-
-    // add the user to the context
-    return { userID };
-  },
+  context: createContext,
   plugins: [
     DepthLimitingPlugin({ maxDepth: 10 }),
     // StrictOperationsPlugin(),
