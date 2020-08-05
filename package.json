@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.0.24",
     "dotenv": "^8.2.0",
     "ts-node": "^8.10.2",
@@ -22,6 +23,7 @@
     "@apollo/gateway": "^0.18.0",
     "apollo": "^2.28.0",
     "apollo-server": "^2.16.0",
-    "apollo-server-plugin-operation-registry": "^0.5.0"
+    "apollo-server-plugin-operation-registry": "^0.5.0",
+    "jsonwebtoken": "^8.5.1"
   }
 }

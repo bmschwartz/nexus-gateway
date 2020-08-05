@@ -1,12 +1,16 @@
-import * as dotenv from 'dotenv'
+import * as dotenv from "dotenv";
 import { ApolloServer } from "apollo-server";
-import { ApolloGateway, RemoteGraphQLDataSource, GatewayConfig } from "@apollo/gateway";
+import {
+  ApolloGateway,
+  RemoteGraphQLDataSource,
+  GatewayConfig,
+} from "@apollo/gateway";
 import DepthLimitingPlugin from "./plugins/ApolloServerPluginDepthLimiting";
 import StrictOperationsPlugin from "./plugins/ApolloServerPluginStrictOperations";
 import ReportForbiddenOperationsPlugin from "./plugins/ApolloServerPluginReportForbiddenOperation";
-import { createContext } from './context';
+import { createContext } from "./context";
 
-dotenv.config()
+dotenv.config();
 
 const isProd = process.env.NODE_ENV === "production";
 const apolloKey = process.env.APOLLO_KEY;
@@ -23,11 +27,13 @@ let gatewayOptions: GatewayConfig = {
   debug: isProd ? false : true,
   buildService({ url }) {
     return new AuthenticatedDataSource({ url });
-  }
+  },
 };
 
 if (!apolloKey) {
-  console.log(`Head over to https://studio.apollographql.com and create an account to follow walkthrough in the Acephei README`);
+  console.log(
+    `Head over to https://studio.apollographql.com and create an account to follow walkthrough in the Acephei README`
+  );
 
   gatewayOptions = {
     serviceList: [
@@ -38,38 +44,40 @@ if (!apolloKey) {
     debug: isProd ? false : true,
     buildService({ url }) {
       return new AuthenticatedDataSource({ url });
-    }
-  }
+    },
+  };
 }
 
-const apolloOperationRegistryPlugin = apolloKey ? require("apollo-server-plugin-operation-registry")({
-  graphVariant,
-  forbidUnregisteredOperations({
-    context, // Destructure the shared request `context`.
-    request: {
-      http: { headers } // Destructure the `headers` class.
-    },
-  }) {
-    // If a magic header is in place, allow any unregistered operation.
-    if (headers.get("override")) return false;
-    // Enforce operation safelisting on all other users.
-    return isProd;
-  }
-}) : {};
+const apolloOperationRegistryPlugin = apolloKey
+  ? require("apollo-server-plugin-operation-registry")({
+      graphVariant,
+      forbidUnregisteredOperations({
+        context, // Destructure the shared request `context`.
+        request: {
+          http: { headers }, // Destructure the `headers` class.
+        },
+      }) {
+        // If a magic header is in place, allow any unregistered operation.
+        if (headers.get("override")) return false;
+        // Enforce operation safelisting on all other users.
+        return isProd;
+      },
+    })
+  : {};
 
 const gateway = new ApolloGateway(gatewayOptions);
 const server = new ApolloServer({
   gateway,
   subscriptions: false, // Must be disabled with the gateway; see above.
   engine: {
-    apiKey: apolloKey,   //We set the APOLLO_KEY environment variable
-    graphVariant,        //We set the APOLLO_GRAPH_VARIANT environment variable
+    apiKey: apolloKey, //We set the APOLLO_KEY environment variable
+    graphVariant, //We set the APOLLO_GRAPH_VARIANT environment variable
     sendVariableValues: {
-      all: true
+      all: true,
     },
     sendHeaders: {
-      all: true
-    }
+      all: true,
+    },
   },
   context: createContext,
   plugins: [
@@ -77,7 +85,7 @@ const server = new ApolloServer({
     // StrictOperationsPlugin(),
     // ReportForbiddenOperationsPlugin({ debug: true }),
     // apolloOperationRegistryPlugin
-  ]
+  ],
 });
 
 const port = process.env.PORT || 4000;
