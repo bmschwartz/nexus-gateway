@@ -1,39 +1,39 @@
-import * as dotenv from "dotenv";
-import { ApolloServer } from "apollo-server";
+import * as dotenv from "dotenv"
+import { ApolloServer } from "apollo-server"
 import {
   ApolloGateway,
   RemoteGraphQLDataSource,
   GatewayConfig,
-} from "@apollo/gateway";
-import DepthLimitingPlugin from "./plugins/ApolloServerPluginDepthLimiting";
-import StrictOperationsPlugin from "./plugins/ApolloServerPluginStrictOperations";
-import ReportForbiddenOperationsPlugin from "./plugins/ApolloServerPluginReportForbiddenOperation";
-import { createContext } from "./context";
+} from "@apollo/gateway"
+import DepthLimitingPlugin from "./plugins/ApolloServerPluginDepthLimiting"
+import StrictOperationsPlugin from "./plugins/ApolloServerPluginStrictOperations"
+import ReportForbiddenOperationsPlugin from "./plugins/ApolloServerPluginReportForbiddenOperation"
+import { createContext } from "./context"
 
-dotenv.config();
+dotenv.config()
 
-const isProd = process.env.NODE_ENV === "production";
-const apolloKey = process.env.APOLLO_KEY;
-const graphVariant = process.env.APOLLO_GRAPH_VARIANT || "development";
+const isProd = process.env.NODE_ENV === "production"
+const apolloKey = process.env.APOLLO_KEY
+const graphVariant = process.env.APOLLO_GRAPH_VARIANT || "development"
 
 class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }) {
-    request.http.headers.set("userid", context.userId);
-    request.http.headers.set("permissions", context.permissions);
+    request.http.headers.set("userid", context.userId)
+    request.http.headers.set("permissions", context.permissions)
   }
 }
 
 let gatewayOptions: GatewayConfig = {
   debug: isProd ? false : true,
   buildService({ url }) {
-    return new AuthenticatedDataSource({ url });
+    return new AuthenticatedDataSource({ url })
   },
-};
+}
 
 if (!apolloKey) {
   console.log(
-    `Head over to https://studio.apollographql.com and create an account to follow walkthrough in the Acephei README`
-  );
+    `Head over to https://studio.apollographql.com and create an account to follow walkthrough in the Acephei README`,
+  )
 
   gatewayOptions = {
     serviceList: [
@@ -43,9 +43,9 @@ if (!apolloKey) {
     ],
     debug: isProd ? false : true,
     buildService({ url }) {
-      return new AuthenticatedDataSource({ url });
+      return new AuthenticatedDataSource({ url })
     },
-  };
+  }
 }
 
 const apolloOperationRegistryPlugin = apolloKey
@@ -58,14 +58,14 @@ const apolloOperationRegistryPlugin = apolloKey
         },
       }) {
         // If a magic header is in place, allow any unregistered operation.
-        if (headers.get("override")) return false;
+        if (headers.get("override")) return false
         // Enforce operation safelisting on all other users.
-        return isProd;
+        return isProd
       },
     })
-  : {};
+  : {}
 
-const gateway = new ApolloGateway(gatewayOptions);
+const gateway = new ApolloGateway(gatewayOptions)
 const server = new ApolloServer({
   gateway,
   subscriptions: false, // Must be disabled with the gateway; see above.
@@ -86,9 +86,9 @@ const server = new ApolloServer({
     // ReportForbiddenOperationsPlugin({ debug: true }),
     // apolloOperationRegistryPlugin
   ],
-});
+})
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4000
 server.listen({ port }).then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
-});
+  console.log(`🚀 Server ready at ${url}`)
+})

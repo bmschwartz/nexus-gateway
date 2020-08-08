@@ -1,41 +1,41 @@
 import {
   ApolloServerPlugin,
   GraphQLRequestListener,
-} from "apollo-server-plugin-base";
-import { ApolloError } from "apollo-server-errors";
+} from "apollo-server-plugin-base"
+import { ApolloError } from "apollo-server-errors"
 import {
   Kind,
   DefinitionNode,
   FieldNode,
   FragmentSpreadNode,
   InlineFragmentNode,
-} from "graphql";
-import { getLogger } from "loglevel";
+} from "graphql"
+import { getLogger } from "loglevel"
 
 interface Options {
-  maxDepth?: number;
-  debug?: boolean;
+  maxDepth?: number
+  debug?: boolean
 }
 
-const logger = getLogger(`apollo-server:report-forbidden-operations-plugin`);
+const logger = getLogger(`apollo-server:report-forbidden-operations-plugin`)
 
 export default function DepthLimitingPlugin(
-  options: Options = Object.create(null)
+  options: Options = Object.create(null),
 ) {
-  if (options.debug) logger.enableAll();
+  if (options.debug) logger.enableAll()
 
-  let maxDepth = options.maxDepth || 5;
+  let maxDepth = options.maxDepth || 5
 
-  Object.freeze(options);
+  Object.freeze(options)
 
   return (): ApolloServerPlugin => ({
     requestDidStart(): GraphQLRequestListener<any> {
       return {
         executionDidStart({ document }) {
-          let definitions = document.definitions;
-          const fragments = getFragments(definitions);
-          const queries = getQueriesAndMutations(definitions);
-          const queryDepths = {};
+          let definitions = document.definitions
+          const fragments = getFragments(definitions)
+          const queries = getQueriesAndMutations(definitions)
+          const queryDepths = {}
           for (let name in queries) {
             queryDepths[name] = determineDepth(
               queries[name],
@@ -43,8 +43,8 @@ export default function DepthLimitingPlugin(
               0,
               maxDepth,
               name,
-              options
-            );
+              options,
+            )
           }
 
           if (options.debug)
@@ -52,31 +52,31 @@ export default function DepthLimitingPlugin(
               logger.debug(
                 `Operation ${query || "**UNNAMED**"} - Depth: ${
                   queryDepths[query]
-                }`
-              );
+                }`,
+              )
         },
-      };
+      }
     },
-  });
+  })
 }
 
 function getFragments(definitions: readonly DefinitionNode[]): {} {
   return definitions.reduce((map, definition) => {
     if (definition.kind === Kind.FRAGMENT_DEFINITION) {
-      map[definition.name.value] = definition;
+      map[definition.name.value] = definition
     }
-    return map;
-  }, {});
+    return map
+  }, {})
 }
 
 // this will actually get both queries and mutations. we can basically treat those the same
 function getQueriesAndMutations(definitions: readonly DefinitionNode[]): {} {
   return definitions.reduce((map, definition) => {
     if (definition.kind === Kind.OPERATION_DEFINITION) {
-      map[definition.name ? definition.name.value : ""] = definition;
+      map[definition.name ? definition.name.value : ""] = definition
     }
-    return map;
-  }, {});
+    return map
+  }, {})
 }
 
 function determineDepth(
@@ -85,15 +85,15 @@ function determineDepth(
   depthSoFar,
   maxDepth,
   operationName,
-  options
+  options,
 ) {
   if (depthSoFar > maxDepth) {
     logger.debug(
-      `'${operationName}' exceeds maximum operation depth of ${maxDepth}: ${depthSoFar}`
-    );
+      `'${operationName}' exceeds maximum operation depth of ${maxDepth}: ${depthSoFar}`,
+    )
     throw new ApolloError(
-      `'${operationName}' exceeds maximum operation depth of ${maxDepth}: ${depthSoFar}`
-    );
+      `'${operationName}' exceeds maximum operation depth of ${maxDepth}: ${depthSoFar}`,
+    )
   }
 
   switch (node.kind) {
@@ -103,7 +103,7 @@ function determineDepth(
         node.name.value === "__schema" ||
         node.name.value === "__type"
       ) {
-        return 0;
+        return 0
       }
       return (
         1 +
@@ -115,11 +115,11 @@ function determineDepth(
               depthSoFar + 1,
               maxDepth,
               operationName,
-              options
-            )
-          )
+              options,
+            ),
+          ),
         )
-      );
+      )
     case Kind.FRAGMENT_SPREAD:
       return determineDepth(
         fragments[node.name.value],
@@ -127,8 +127,8 @@ function determineDepth(
         depthSoFar,
         maxDepth,
         operationName,
-        options
-      );
+        options,
+      )
     case Kind.INLINE_FRAGMENT:
     case Kind.FRAGMENT_DEFINITION:
     case Kind.OPERATION_DEFINITION:
@@ -140,13 +140,13 @@ function determineDepth(
             depthSoFar,
             maxDepth,
             operationName,
-            options
-          )
-        )
-      );
+            options,
+          ),
+        ),
+      )
     /* istanbul ignore next */
     default:
-      logger.debug(`Unknown node.kind: ${node.kind}`);
-      throw new Error("uh oh! depth crawler cannot handle: " + node.kind);
+      logger.debug(`Unknown node.kind: ${node.kind}`)
+      throw new Error("uh oh! depth crawler cannot handle: " + node.kind)
   }
 }
