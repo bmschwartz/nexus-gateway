@@ -1,14 +1,14 @@
+import { ApolloError } from "apollo-server-errors"
 import {
   ApolloServerPlugin,
   GraphQLRequestListener,
 } from "apollo-server-plugin-base"
-import { ApolloError } from "apollo-server-errors"
 import {
-  Kind,
   DefinitionNode,
   FieldNode,
   FragmentSpreadNode,
   InlineFragmentNode,
+  Kind,
 } from "graphql"
 import { getLogger } from "loglevel"
 
@@ -22,9 +22,11 @@ const logger = getLogger(`apollo-server:report-forbidden-operations-plugin`)
 export default function DepthLimitingPlugin(
   options: Options = Object.create(null),
 ) {
-  if (options.debug) logger.enableAll()
+  if (options.debug) {
+    logger.enableAll()
+  }
 
-  let maxDepth = options.maxDepth || 5
+  const maxDepth = options.maxDepth || 5
 
   Object.freeze(options)
 
@@ -32,11 +34,11 @@ export default function DepthLimitingPlugin(
     requestDidStart(): GraphQLRequestListener<any> {
       return {
         executionDidStart({ document }) {
-          let definitions = document.definitions
+          const definitions = document.definitions
           const fragments = getFragments(definitions)
           const queries = getQueriesAndMutations(definitions)
           const queryDepths = {}
-          for (let name in queries) {
+          for (const name in queries) {
             queryDepths[name] = determineDepth(
               queries[name],
               fragments,
@@ -47,13 +49,15 @@ export default function DepthLimitingPlugin(
             )
           }
 
-          if (options.debug)
-            for (let query in queryDepths)
+          if (options.debug) {
+            for (const query in queryDepths) {
               logger.debug(
                 `Operation ${query || "**UNNAMED**"} - Depth: ${
                   queryDepths[query]
                 }`,
               )
+            }
+          }
         },
       }
     },

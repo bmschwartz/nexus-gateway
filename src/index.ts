@@ -1,14 +1,12 @@
-import * as dotenv from "dotenv"
-import { ApolloServer } from "apollo-server"
 import {
   ApolloGateway,
-  RemoteGraphQLDataSource,
   GatewayConfig,
+  RemoteGraphQLDataSource,
 } from "@apollo/gateway"
-import DepthLimitingPlugin from "./plugins/ApolloServerPluginDepthLimiting"
-import StrictOperationsPlugin from "./plugins/ApolloServerPluginStrictOperations"
-import ReportForbiddenOperationsPlugin from "./plugins/ApolloServerPluginReportForbiddenOperation"
+import { ApolloServer } from "apollo-server"
+import * as dotenv from "dotenv"
 import { createContext } from "./context"
+import DepthLimitingPlugin from "./plugins/ApolloServerPluginDepthLimiting"
 
 dotenv.config()
 
@@ -58,7 +56,9 @@ const apolloOperationRegistryPlugin = apolloKey
         },
       }) {
         // If a magic header is in place, allow any unregistered operation.
-        if (headers.get("override")) return false
+        if (headers.get("override")) {
+          return false
+        }
         // Enforce operation safelisting on all other users.
         return isProd
       },
@@ -70,8 +70,8 @@ const server = new ApolloServer({
   gateway,
   subscriptions: false, // Must be disabled with the gateway; see above.
   engine: {
-    apiKey: apolloKey, //We set the APOLLO_KEY environment variable
-    graphVariant, //We set the APOLLO_GRAPH_VARIANT environment variable
+    apiKey: apolloKey, // We set the APOLLO_KEY environment variable
+    graphVariant, // We set the APOLLO_GRAPH_VARIANT environment variable
     sendVariableValues: {
       all: true,
     },

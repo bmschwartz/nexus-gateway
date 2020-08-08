@@ -1,11 +1,10 @@
+import { ApolloError } from "apollo-server-errors"
 import {
   ApolloServerPlugin,
-  GraphQLRequestListener,
   GraphQLRequestContext,
+  GraphQLRequestListener,
 } from "apollo-server-plugin-base"
-import { ApolloError } from "apollo-server-errors"
 import loglevel from "loglevel"
-import { PluginDefinition } from "apollo-server-core"
 
 interface Options {
   debug?: boolean
@@ -19,16 +18,19 @@ interface Options {
 export default function StrictOperationsPlugin(
   options: Options = Object.create(null),
 ) {
-  let enforceOperationNaming = options.enforceOperationNaming || true
-  let enforceClientNaming = options.enforceClientNaming || true
-  let enforceClientVersion = options.enforceClientVersion || true
+  const enforceOperationNaming = options.enforceOperationNaming || true
+  const enforceClientNaming = options.enforceClientNaming || true
+  const enforceClientVersion = options.enforceClientVersion || true
 
-  let clientNameHeader = options.clientNameHeader || "apollographql-client-name"
-  let clientVersionHeader =
+  const clientNameHeader =
+    options.clientNameHeader || "apollographql-client-name"
+  const clientVersionHeader =
     options.clientVersionHeader || "apollographql-client-version"
 
   const logger = loglevel.getLogger(`apollo-server:strict-operations-plugin`)
-  if (options.debug === true) logger.enableAll()
+  if (options.debug === true) {
+    logger.enableAll()
+  }
 
   Object.freeze(options)
 
@@ -36,10 +38,10 @@ export default function StrictOperationsPlugin(
     requestDidStart(
       requestContext: GraphQLRequestContext,
     ): GraphQLRequestListener<any> {
-      let clientName = requestContext.request.http?.headers.get(
+      const clientName = requestContext.request.http?.headers.get(
         clientNameHeader,
       )
-      let clientVersion = requestContext.request.http?.headers.get(
+      const clientVersion = requestContext.request.http?.headers.get(
         clientVersionHeader,
       )
 
@@ -64,11 +66,11 @@ export default function StrictOperationsPlugin(
           if (enforceOperationNaming && !request.operationName) {
             logger.debug(`Unnamed Operation: ${queryHash}`)
 
-            let error = new ApolloError("Execution denied: Unnamed operation")
+            const error = new ApolloError("Execution denied: Unnamed operation")
             Object.assign(error.extensions, {
-              queryHash: queryHash,
-              clientName: clientName,
-              clientVersion: clientVersion,
+              queryHash,
+              clientName,
+              clientVersion,
               exception: {
                 message: `All operations must be named`,
               },
