@@ -13,8 +13,12 @@ logs
 results
 tmp
 
+.vscode
+
 # Build
 public/css/main.css
+
+tsconfig.tsbuildinfo
 
 # Coverage reports
 coverage
