@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv"
 import jwt from "jsonwebtoken"
+import {logger} from "./logger"
 
 dotenv.config()
 
@@ -8,6 +9,7 @@ export function createContext({ req }: any) {
 
   if (authorization) {
     const token = authorization.replace("Bearer ", "")
+
     try {
       const decoded: any = jwt.verify(token, String(process.env.APP_SECRET))
 
@@ -15,6 +17,7 @@ export function createContext({ req }: any) {
         return { userId: decoded.userId, permissions: decoded.permissions }
       }
     } catch (e) {
+      logger.info("Invalid authorization token")
       return null
     }
   }

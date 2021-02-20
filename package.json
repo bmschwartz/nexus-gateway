@@ -31,7 +31,10 @@
     "apollo": "^2.28.0",
     "apollo-server": "^2.16.0",
     "apollo-server-plugin-operation-registry": "^0.5.0",
-    "jsonwebtoken": "^8.5.1"
+    "aws-sdk": "^2.848.0",
+    "jsonwebtoken": "^8.5.1",
+    "winston": "^3.3.3",
+    "winston-cloudwatch": "^2.5.0"
   },
   "prettier": {
     "semi": false,

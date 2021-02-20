@@ -7,6 +7,7 @@ import { ApolloServer } from "apollo-server"
 import * as dotenv from "dotenv"
 import { createContext } from "./context"
 import DepthLimitingPlugin from "./plugins/ApolloServerPluginDepthLimiting"
+import {logger} from "./logger"
 
 dotenv.config()
 
@@ -22,7 +23,7 @@ class AuthenticatedDataSource extends RemoteGraphQLDataSource {
 }
 
 let gatewayOptions: GatewayConfig = {
-  debug: isProd ? false : true,
+  debug: !isProd,
   buildService({ url }) {
     return new AuthenticatedDataSource({ url })
   },
@@ -91,4 +92,5 @@ const server = new ApolloServer({
 const port = process.env.PORT || 4000
 server.listen({ port }).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`)
+  logger.info(`Nexus Gateway Server ready at ${url}`)
 })
