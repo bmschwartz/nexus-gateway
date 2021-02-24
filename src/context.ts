@@ -14,7 +14,7 @@ export function createContext({ req }: any) {
       const decoded: any = jwt.verify(token, String(process.env.APP_SECRET))
 
       if (decoded.userId) {
-        return { userId: decoded.userId, permissions: decoded.permissions }
+        return { userId: decoded.userId }
       }
     } catch (e) {
       logger.info("Invalid authorization token")
