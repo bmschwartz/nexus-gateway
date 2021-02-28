@@ -37,7 +37,7 @@ if (!apolloKey) {
   gatewayOptions = {
     serviceList: [
       { name: "exchange", url: "http://localhost:4001" },
-      { name: "groups", url: "http://localhost:4002" },
+      { name: "groups", url: "http://localhost:4002/graphql" },
       { name: "users", url: "http://localhost:4003" },
     ],
     debug: isProd ? false : true,
