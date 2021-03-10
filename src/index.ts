@@ -18,7 +18,7 @@ const graphVariant = process.env.APOLLO_GRAPH_VARIANT || "development"
 class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }) {
     request.http.headers.set("userid", context.userId)
-    request.http.headers.set("permissions", context.permissions)
+    request.http.headers.set("usertype", context.userType)
   }
 }
 
