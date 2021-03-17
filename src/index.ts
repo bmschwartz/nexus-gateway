@@ -13,7 +13,7 @@ dotenv.config()
 
 const isProd = process.env.NODE_ENV === "production"
 const apolloKey = process.env.APOLLO_KEY
-const graphVariant = process.env.APOLLO_GRAPH_VARIANT || "development"
+const graphVariant = process.env.APOLLO_GRAPH_VARIANT || "current"
 
 class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }) {
