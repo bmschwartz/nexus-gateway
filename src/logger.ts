@@ -27,10 +27,6 @@ export const logger = winston.createLogger({
   ],
 });
 
-console.log(process.env.AWS_REGION,
-  process.env.AWS_ACCESS_KEY,
-  process.env.AWS_SECRET_KEY)
-
 logger.add(new WinstonCloudWatch({
   logGroupName: "nexus-gateway",
   logStreamName: process.env.NODE_ENV,
